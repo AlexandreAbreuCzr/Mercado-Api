@@ -1,26 +1,25 @@
 package br.com.alexandre.api_mercado.controller;
 
-import br.com.alexandre.api_mercado.dto.ProdutoCreateDTO;
-import br.com.alexandre.api_mercado.dto.ProdutoResponseDTO;
-import br.com.alexandre.api_mercado.service.ProdutoService;
+import br.com.alexandre.api_mercado.dto.CategoriaCreateDTO;
+import br.com.alexandre.api_mercado.dto.CategoriaResponseDTO;
+import br.com.alexandre.api_mercado.service.CategoriaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/produtos")
-public class ProdutoController {
+@RequestMapping("/categorias")
+public class CategoriaController {
     @Autowired
-    private ProdutoService produtoService;
+    private CategoriaService categoriaService;
 
 
     @PostMapping("/add")
-    public ResponseEntity<?> add(@RequestBody ProdutoCreateDTO params){
+    public ResponseEntity<?> add(@RequestBody CategoriaCreateDTO params){
         try {
-            var result = produtoService.save(params);
+            var result = categoriaService.save(params);
             return ResponseEntity.ok(result);
         }catch (IllegalArgumentException e){
             return ResponseEntity.status(400).body(e.getMessage());
@@ -30,30 +29,29 @@ public class ProdutoController {
     @GetMapping("/get/{id}")
     public ResponseEntity<?> getById(@PathVariable Long id){
         try {
-            var result = produtoService.findById(id);
+            var result = categoriaService.findById(id);
             return ResponseEntity.ok(result);
         }catch (RuntimeException e){
             return ResponseEntity.status(400).body(e.getMessage());
         }
 
-
     }
 
     @GetMapping("/get")
-    public List<ProdutoResponseDTO> get(@RequestParam(required = false) String name, @RequestParam(required = false) BigDecimal price){
-        if(name != null && price != null){
+    public List<CategoriaResponseDTO> get(@RequestParam(required = false) String name, @RequestParam(required = false) Boolean active){
+        if(name != null && active != null){
             throw new IllegalArgumentException("Use apenas um filtro por vez");
         }
 
         if (name !=null){
-            return produtoService.findByName(name);
+            return categoriaService.findByName(name);
         }
 
-        if (price != null){
-            return produtoService.findByPrice(price);
+        if (active !=null){
+            return categoriaService.findByActive(active);
         }
 
-        return produtoService.getAll();
+        return categoriaService.getAll();
     }
 
 }

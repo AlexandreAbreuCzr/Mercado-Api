@@ -7,6 +7,7 @@ public record ProdutoResponseDTO(
         Long id,
         String name,
         BigDecimal price,
-        LocalDate data_created
-) {
-}
+        LocalDate data_created,
+        Long categoriaId
+) {}
+

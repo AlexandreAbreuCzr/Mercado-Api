@@ -1,5 +1,6 @@
 package br.com.alexandre.api_mercado.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,4 +30,9 @@ public class Produto {
 
     @CreationTimestamp
     private LocalDate data_created;
+
+    @ManyToOne
+    @JoinColumn(name = "categoria_id", nullable = false)
+    @JsonBackReference
+    private Categoria categoria;
 }
