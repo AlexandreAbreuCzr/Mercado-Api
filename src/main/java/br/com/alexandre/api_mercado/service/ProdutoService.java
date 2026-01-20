@@ -1,15 +1,18 @@
 package br.com.alexandre.api_mercado.service;
 
-import br.com.alexandre.api_mercado.dto.ProdutoCreateDTO;
-import br.com.alexandre.api_mercado.dto.ProdutoResponseDTO;
+import br.com.alexandre.api_mercado.dto.*;
+import br.com.alexandre.api_mercado.exeptions.geral.PreencherCamposException;
+import br.com.alexandre.api_mercado.exeptions.geral.ProdutoComEstoqueException;
+import br.com.alexandre.api_mercado.exeptions.not_found.CategoriaNotFoundException;
+import br.com.alexandre.api_mercado.exeptions.not_found.ProdutoNotFoundException;
 import br.com.alexandre.api_mercado.model.Produto;
 import br.com.alexandre.api_mercado.repository.CategoriaRepository;
 import br.com.alexandre.api_mercado.repository.ProdutoRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -20,9 +23,12 @@ public class ProdutoService {
     @Autowired
     CategoriaRepository categoriaRepository;
 
+    @Autowired
+    private EstoqueService estoqueService;
+
     public ProdutoResponseDTO save(ProdutoCreateDTO dto) {
-        if (dto.name() == null || dto.price() == null) {
-            throw new IllegalArgumentException("Preencher todos os campos");
+        if (dto.name() == null || dto.price() == null || dto.categoriaId() == null) {
+            throw new PreencherCamposException();
         }
 
         Produto produto = new Produto();
@@ -30,10 +36,11 @@ public class ProdutoService {
         produto.setPrice(dto.price());
         produto.setCategoria(
                 categoriaRepository.findById(dto.categoriaId())
-                        .orElseThrow(() -> new RuntimeException("Categoria não encontrada"))
+                        .orElseThrow(CategoriaNotFoundException::new)
         );
 
         Produto salvo = produtoRepository.save(produto);
+        estoqueService.save(new EstoqueCreateDTO(salvo.getId(), 0));
         return mapProduto(salvo);
     }
 
@@ -45,7 +52,7 @@ public class ProdutoService {
 
     public ProdutoResponseDTO findById(Long id) {
         Produto produto = produtoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+                .orElseThrow(ProdutoNotFoundException::new);
         return mapProduto(produto);
     }
 
@@ -72,4 +79,67 @@ public class ProdutoService {
         );
     }
 
+    @Transactional
+    public void delete(Long id) {
+
+        Produto produto = produtoRepository.findById(id)
+                .orElseThrow(ProdutoNotFoundException::new);
+
+        if (estoqueService.findByProductId(id).quantity() > 0) {
+            throw new ProdutoComEstoqueException();
+        }
+        estoqueService.delete(id);
+        produtoRepository.delete(produto);
+    }
+
+    public ProdutoResponseDTO update(Long produtoId, ProdutoUpdateDTO dto){
+        if (dto.name() == null || dto.price() == null || dto.categoriaId() == null){
+            throw new PreencherCamposException();
+        }
+
+        Produto produto = produtoRepository.findById(produtoId)
+                .orElseThrow(ProdutoNotFoundException::new);
+
+        produto.setName(dto.name());
+        produto.setPrice(dto.price());
+        produto.setCategoria(categoriaRepository.findById(dto.categoriaId())
+                .orElseThrow(CategoriaNotFoundException::new));
+        Produto salvo = produtoRepository.save(produto);
+        return mapProduto(salvo);
+
+    }
+
+    public ProdutoResponseDTO updatePrice(Long produtoId, ProdutoUpdatePriceDTO dto){
+        if (dto.price() == null){
+            throw new PreencherCamposException();
+        }
+        Produto produto = produtoRepository.findById(produtoId)
+                .orElseThrow(ProdutoNotFoundException::new);
+        produto.setPrice(dto.price());
+        Produto salvo = produtoRepository.save(produto);
+        return mapProduto(salvo);
+    }
+
+    public ProdutoResponseDTO updateName(Long produtoId, ProdutoUpdateNameDTO dto){
+        if (dto.name() == null){
+            throw new PreencherCamposException();
+        }
+        Produto produto = produtoRepository.findById(produtoId)
+                .orElseThrow(ProdutoNotFoundException::new);
+        produto.setName(dto.name());
+        Produto salvo = produtoRepository.save(produto);
+        return mapProduto(salvo);
+    }
+
+    public ProdutoResponseDTO updateCategoria(Long produtoId, ProdutoUpdateCategoriaDTO dto){
+        if (dto.categoriaId() == null){
+            throw new PreencherCamposException();
+        }
+        Produto produto = produtoRepository.findById(produtoId)
+                .orElseThrow(ProdutoNotFoundException::new);
+        produto.setCategoria(categoriaRepository.findById(dto.categoriaId())
+                .orElseThrow(CategoriaNotFoundException::new));
+        Produto salvo = produtoRepository.save(produto);
+        return mapProduto(salvo);
+    }
 }
