@@ -34,10 +34,10 @@ Este projeto tem como objetivo consolidar conceitos de:
 - Geração de token JWT
 - Controle de acesso por nível de responsabilidade (roles)
 
-### 📦 Produtos
-- Cadastro de produtos
-- Listagem de produtos
-- Atualização de produtos
+### 📦 Produtos / Estoque
+- Cadastro de produtos e manipulação de estoque
+- Listagem de produtos por categoria
+- Atualização de produtos e estoque
 - Remoção de produtos
 - Acesso controlado por permissão
 
