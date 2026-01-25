@@ -5,8 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "estoque")
@@ -27,9 +30,11 @@ public class Estoque {
     @Column(nullable = false)
     private Integer quantity;
 
-    private LocalDate lastUpdate = LocalDate.now();
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
 
-    private void setUpdate(){
-        this.lastUpdate = LocalDate.now();
-    }
+    @UpdateTimestamp
+    private LocalDateTime lastUpdate;
+
 }

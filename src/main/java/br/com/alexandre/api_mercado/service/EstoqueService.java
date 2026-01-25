@@ -4,6 +4,7 @@ import br.com.alexandre.api_mercado.dto.EstoqueCreateDTO;
 import br.com.alexandre.api_mercado.dto.EstoqueResponseDTO;
 import br.com.alexandre.api_mercado.dto.EstoqueUpdateDTO;
 import br.com.alexandre.api_mercado.dto.ProdutoResponseDTO;
+import br.com.alexandre.api_mercado.exeptions.geral.EstoqueInsuficenteException;
 import br.com.alexandre.api_mercado.exeptions.geral.PreencherCamposException;
 import br.com.alexandre.api_mercado.exeptions.geral.ProdutoComEstoqueException;
 import br.com.alexandre.api_mercado.exeptions.not_found.EstoqueNotFoundException;
@@ -13,12 +14,19 @@ import br.com.alexandre.api_mercado.model.Produto;
 import br.com.alexandre.api_mercado.repository.EstoqueRepository;
 import br.com.alexandre.api_mercado.repository.ProdutoRepository;
 import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
+
+@NoArgsConstructor
+@AllArgsConstructor
 @Service
 public class EstoqueService {
     @Autowired
@@ -64,13 +72,15 @@ public class EstoqueService {
                 estoque.getProduct().getId(),
                 estoque.getProduct().getName(),
                 estoque.getProduct().getPrice(),
-                estoque.getProduct().getData_created(),
-                estoque.getProduct().getCategoria().getId()
+                estoque.getProduct().getCategoria().getId(),
+                estoque.getProduct().getCreatedAt(),
+                estoque.getProduct().getLastUpdate()
         );
         EstoqueResponseDTO response = new EstoqueResponseDTO(
                 estoque.getId(),
                 produtoDTO,
                 estoque.getQuantity(),
+                estoque.getCreatedAt(),
                 estoque.getLastUpdate()
         );
         return response;
@@ -130,4 +140,25 @@ public class EstoqueService {
     }
 
 
+    public void validarEstoque(Long id, Integer quantity) {
+        Produto produto = produtoRepository.findById(id)
+                .orElseThrow(ProdutoNotFoundException::new);
+        Estoque estoque = estoqueRepository.findByProduct(produto)
+                .orElseThrow(EstoqueNotFoundException::new);
+
+        if (estoque.getQuantity() < quantity){
+            throw new EstoqueInsuficenteException();
+        }
+
+    }
+
+    public void baixarEstoque(Long id, Integer quantity) {
+        Produto produto = produtoRepository.findById(id)
+                .orElseThrow(ProdutoNotFoundException::new);
+        Estoque estoque = estoqueRepository.findByProduct(produto)
+                .orElseThrow(EstoqueNotFoundException::new);
+
+        estoque.setQuantity(estoque.getQuantity() - quantity);
+        estoqueRepository.save(estoque);
+    }
 }

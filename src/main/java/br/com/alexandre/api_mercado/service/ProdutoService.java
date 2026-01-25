@@ -9,12 +9,16 @@ import br.com.alexandre.api_mercado.model.Produto;
 import br.com.alexandre.api_mercado.repository.CategoriaRepository;
 import br.com.alexandre.api_mercado.repository.ProdutoRepository;
 import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
 
+@NoArgsConstructor
+@AllArgsConstructor
 @Service
 public class ProdutoService {
     @Autowired
@@ -74,8 +78,9 @@ public class ProdutoService {
                 produto.getId(),
                 produto.getName(),
                 produto.getPrice(),
-                produto.getData_created(),
-                produto.getCategoria().getId()
+                produto.getCategoria().getId(),
+                produto.getCreatedAt(),
+                produto.getLastUpdate()
         );
     }
 
@@ -142,4 +147,5 @@ public class ProdutoService {
         Produto salvo = produtoRepository.save(produto);
         return mapProduto(salvo);
     }
+
 }

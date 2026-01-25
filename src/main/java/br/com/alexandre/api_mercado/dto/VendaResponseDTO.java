@@ -1,13 +1,14 @@
 package br.com.alexandre.api_mercado.dto;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
-public record EstoqueResponseDTO (
+public record VendaResponseDTO(
         Long id,
-        ProdutoResponseDTO produto,
-        Integer quantity,
+        List<VendaItemResponseDTO> items,
+        BigDecimal totalPrice,
         LocalDateTime createdAt,
         LocalDateTime lastUpdate
-){
+) {
 }

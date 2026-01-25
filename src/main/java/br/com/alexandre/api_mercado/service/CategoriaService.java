@@ -59,7 +59,9 @@ public class CategoriaService {
                 salvo.getId(),
                 salvo.getName(),
                 salvo.getActive(),
-                Collections.emptyList()
+                Collections.emptyList(),
+                salvo.getCreatedAt(),
+                salvo.getLastUpdate()
         );
     }
 
@@ -70,8 +72,9 @@ public class CategoriaService {
                         p.getId(),
                         p.getName(),
                         p.getPrice(),
-                        p.getData_created(),
-                        p.getCategoria().getId()
+                        p.getCategoria().getId(),
+                        p.getCreatedAt(),
+                        p.getLastUpdate()
                 ))
                 .toList();
     }
@@ -81,7 +84,9 @@ public class CategoriaService {
                 categoria.getId(),
                 categoria.getName(),
                 categoria.getActive(),
-                mapProdutos(categoria.getProdutos())
+                mapProdutos(categoria.getProdutos()),
+                categoria.getCreatedAt(),
+                categoria.getLastUpdate()
         );
     }
 

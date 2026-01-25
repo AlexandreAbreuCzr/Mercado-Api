@@ -1,6 +1,6 @@
 package br.com.alexandre.api_mercado.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import br.com.alexandre.api_mercado.dto.VendaCreateDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,30 +8,33 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.w3c.dom.stylesheets.LinkStyle;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "venda")
 @Entity
-@Table(name = "categoria")
-public class Categoria {
+public class Venda {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    long id;
+
+    @OneToMany(
+            mappedBy = "venda",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<VendaItem> items;
 
     @Column(nullable = false)
-    private String name;
-
-    @Column(nullable = false)
-    private Boolean active = true;
-
-    @OneToMany(mappedBy = "categoria")
-    @JsonManagedReference
-    private List<Produto> produtos;
+    private BigDecimal totalPrice;
 
     @CreationTimestamp
     @Column(updatable = false)

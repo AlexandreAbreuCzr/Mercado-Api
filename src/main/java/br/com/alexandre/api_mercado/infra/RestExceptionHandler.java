@@ -1,10 +1,12 @@
 package br.com.alexandre.api_mercado.infra;
 
+import br.com.alexandre.api_mercado.exeptions.geral.EstoqueInsuficenteException;
 import br.com.alexandre.api_mercado.exeptions.geral.PreencherCamposException;
 import br.com.alexandre.api_mercado.exeptions.geral.ProdutoComEstoqueException;
 import br.com.alexandre.api_mercado.exeptions.not_found.CategoriaNotFoundException;
 import br.com.alexandre.api_mercado.exeptions.not_found.EstoqueNotFoundException;
 import br.com.alexandre.api_mercado.exeptions.not_found.ProdutoNotFoundException;
+import br.com.alexandre.api_mercado.exeptions.not_found.VendaNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -34,6 +36,11 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usúario não encontrado");
     }
 
+    @ExceptionHandler(VendaNotFoundException.class)
+    private ResponseEntity<String> VendaNotFoundHandler(VendaNotFoundException exception){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
+    }
+
     @ExceptionHandler(PreencherCamposException.class)
     private ResponseEntity<String> PreencherCamposExceptionHandler(PreencherCamposException exception){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
@@ -42,5 +49,10 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ProdutoComEstoqueException.class)
     private ResponseEntity<String> ProdutoComEstoqueHandler(ProdutoComEstoqueException exception){
         return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
+    }
+
+    @ExceptionHandler(EstoqueInsuficenteException.class)
+    private ResponseEntity<String> EstoqueInsuficenteHandler(EstoqueInsuficenteException exception){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
     }
 }
